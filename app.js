@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 var campgrounds = [
   {
     name: "Lakeside Woodfire Camp",
-    image: "https://pixabay.com/get/e83db50929f0033ed1584d05fb1d4e97e07ee3d21cac104490f4c07da1e5b7b0_340.jpg"
+    image: "https://farm2.staticflickr.com/1363/1342367857_2fd12531e7.jpg"
   },
   {
     name: "Mountain Skyline View",
@@ -18,7 +18,7 @@ var campgrounds = [
   },
   {
     name: "Appalacian Hikes",
-    image: "https://pixabay.com/get/e837b1072af4003ed1584d05fb1d4e97e07ee3d21cac104490f4c07da1e5b7b0_340.jpg"
+    image: "https://farm4.staticflickr.com/3290/3753652230_8139b7c717.jpg"
   },
   {
     name: "Shenandoah Drive",
