@@ -3,58 +3,15 @@ const app = express();
 const bodyParser = require('body-parser');
 const port = 3000
 const mongoose = require('mongoose');
+const Campground = require('./models/campgrounds');
+const seedDB = require('./seeds');
 
+seedDB();
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true});
 
-//schemaSetup
-
-var campgroundSchema = new mongoose.Schema({
-  name: String,
-  image: String,
-  description: String
-});
-
-var Campground = mongoose.model("Campground", campgroundSchema);
-
-// Campground.create(
-//   {
-//    name: "Lakeside Woodfire Camp",
-//    image: "https://farm2.staticflickr.com/1363/1342367857_2fd12531e7.jpg",
-//    description: "Beautiful lakeside camping for your weekend date."
-//  }, (err, campground) => {
-//    if (err) {
-//      console.log(err);
-//    } else {
-//      console.log("newly created campground");
-//      console.log(campground);
-//    }
-//  });
-
-// var campgrounds = [
-//   {
-//     name: "Lakeside Woodfire Camp",
-//     image: "https://farm2.staticflickr.com/1363/1342367857_2fd12531e7.jpg"
-//   },
-//   {
-//     name: "Mountain Skyline View",
-//     image: "https://farm2.staticflickr.com/1363/1342367857_2fd12531e7.jpg"
-//   },
-//   {
-//     name: "Appalacian Hikes",
-//     image: "https://farm4.staticflickr.com/3290/3753652230_8139b7c717.jpg"
-//   },
-//   {
-//     name: "Shenandoah Drive",
-//     image: "https://farm9.staticflickr.com/8041/7930201874_6c17ed670a.jpg"
-//   },
-//   {
-//     name: "Chutiya Campsite",
-//     image: "https://farm4.staticflickr.com/3290/3753652230_8139b7c717.jpg"
-//   }
-// ];
-
+// HOME PAGE
 app.get("/", (req, res) => {
   res.render("landing");
 });
@@ -110,5 +67,6 @@ app.get("/campgrounds/:id", (req,res) => {
 
 
 app.listen(port, ()=> {
+  //console.log('The value of PORT is:', process.env.PORT);
   console.log("Yelp camp server has started.")
 });
