@@ -5,6 +5,7 @@ const port = 3000
 const mongoose = require('mongoose');
 const Campground = require('./models/campgrounds');
 const seedDB = require('./seeds');
+const Comment = require('./models/comment');
 
 seedDB();
 app.use(bodyParser.urlencoded({extended:true}));
@@ -22,7 +23,7 @@ app.get("/campgrounds", (req,res) => {
     if (err) {
       console.log(err);
     } else {
-      res.render("index", {campgrounds:allCampgrounds});
+      res.render("campgrounds/index", {campgrounds:allCampgrounds});
     }
   });
 });
@@ -50,21 +51,51 @@ app.post("/campgrounds", (req,res) => {
 
 // NEW - Show form to create new campground
 app.get("/campgrounds/new", (req,res)=>{
-  res.render("new");
+  res.render("campgrounds/new");
 });
 
 // SHOW - shows more information about selected campground
 app.get("/campgrounds/:id", (req,res) => {
-  Campground.findById(req.params.id, (err, foundCampground) => {
+  Campground.findById(req.params.id).populate("comments").exec((err, foundCampground) => {
     if (err) {
       console.log(err);
     } else {
-      //console.log(foundCampground);
-      res.render("show",{campground: foundCampground});
+      console.log(foundCampground);
+      res.render("campgrounds/show",{campground: foundCampground});
     }
   });
 });
 
+// ============= //
+// COMMENT ROUTES
+app.get("/campgrounds/:id/comments/new", (req,res) => {
+  Campground.findById(req.params.id, (err, foundCampground) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("comments/new",{campground: foundCampground});
+    }
+  });
+});
+
+app.post("/campgrounds/:id/comments", (req,res) => {
+  Campground.findById(req.params.id, (err, campground) => {
+    if (err) {
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      Comment.create(req.body.comment, (err,comment) => {
+        if (err) {
+          console.log(err);
+        } else {
+          campground.comments.push(comment);
+          campground.save();
+          res.redirect('/campgrounds/' + campground._id);
+        }
+      });
+    }
+  });
+});
 
 app.listen(port, ()=> {
   //console.log('The value of PORT is:', process.env.PORT);
