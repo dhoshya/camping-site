@@ -1,18 +1,32 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const port = 3000
-const mongoose = require('mongoose');
-const Campground = require('./models/campgrounds');
-const seedDB = require('./seeds');
-const Comment = require('./models/comment');
+const express = require('express'),
+      app = express(),
+      bodyParser = require('body-parser'),
+      port = 3000,
+      mongoose = require('mongoose'),
+      Campground = require('./models/campgrounds'),
+      seedDB = require('./seeds'),
+      Comment = require('./models/comment'),
+      passport = require('passport'),
+      LocalStrategy = require('passport-local'),
+      User = require('./models/user')
 
-seedDB();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname + "/public"));
 app.set("view engine", "ejs");
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true});
+seedDB();
 
+// PASSPORT CONFIG
+app.use(require('express-session')({
+  secret: "rohan is the best",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 // HOME PAGE
 app.get("/", (req, res) => {
   res.render("landing");
@@ -97,6 +111,28 @@ app.post("/campgrounds/:id/comments", (req,res) => {
     }
   });
 });
+
+// AUTH ROUTES
+
+app.get("/register", (req,res)=>{
+  res.render("register");
+});
+
+app.post("/register", (req,res) => {
+
+  let newUser = new User({username: req.body.username});
+
+  User.register(newUser, req.body.password, (err, user) => {
+    if (err) {
+      console.log(err);
+      res.render("register");
+    }
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/campgrounds");
+      });
+    });
+});
+
 
 app.listen(port, ()=> {
   //console.log('The value of PORT is:', process.env.PORT);
