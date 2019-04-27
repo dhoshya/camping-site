@@ -8,7 +8,12 @@ const express = require('express'),
       Comment = require('./models/comment'),
       passport = require('passport'),
       LocalStrategy = require('passport-local'),
-      User = require('./models/user')
+      User = require('./models/user');
+
+// REQUIRE ROUTES
+const commentRoutes = require('./routes/comments'),
+      campgroundRoutes = require('./routes/campgrounds'),
+      indexRoutes = require('./routes/index');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname + "/public"));
@@ -22,158 +27,21 @@ app.use(require('express-session')({
   resave: false,
   saveUninitialized: false
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req,res,next) => {
-  res.locals.currentUser = res.user;
-  next();
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   next();
 });
 
-// HOME PAGE
-app.get("/", (req, res) => {
-  res.render("landing");
-});
-
-//Index - show all campgrounds
-app.get("/campgrounds", (req,res) => {
-
-  Campground.find({}, (err, allCampgrounds) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("campgrounds/index",
-      {
-        campgrounds:allCampgrounds,
-        currentUser:req.user
-      });
-    }
-  });
-});
-
-// CREATE - create new campground
-app.post("/campgrounds", (req,res) => {
-
-    let name = req.body.name;
-    let imageUrl = req.body.image;
-    let desc = req.body.description
-    let newCampground = {
-      name: name,
-      image: imageUrl,
-      description: desc
-    }
-    //campgrounds.push(newCampground);
-    Campground.create(newCampground, function(err, newlyCreated){
-      if (err) {
-        console.log(err);
-      } else {
-        res.redirect("/campgrounds");
-      }
-    })
-});
-
-// NEW - Show form to create new campground
-app.get("/campgrounds/new", (req,res)=>{
-  res.render("campgrounds/new");
-});
-
-// SHOW - shows more information about selected campground
-app.get("/campgrounds/:id", (req,res) => {
-  Campground.findById(req.params.id).populate("comments").exec((err, foundCampground) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(foundCampground);
-      res.render("campgrounds/show",{campground: foundCampground});
-    }
-  });
-});
-
-// ============= //
-// COMMENT ROUTES
-app.get("/campgrounds/:id/comments/new", isLoggedIn, (req,res) => {
-  Campground.findById(req.params.id, (err, foundCampground) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("comments/new",{campground: foundCampground});
-    }
-  });
-});
-
-app.post("/campgrounds/:id/comments", isLoggedIn, (req,res) => {
-  Campground.findById(req.params.id, (err, campground) => {
-    if (err) {
-      console.log(err);
-      res.redirect("/campgrounds");
-    } else {
-      Comment.create(req.body.comment, (err,comment) => {
-        if (err) {
-          console.log(err);
-        } else {
-          campground.comments.push(comment);
-          campground.save();
-          res.redirect('/campgrounds/' + campground._id);
-        }
-      });
-    }
-  });
-});
-
-// AUTH ROUTES
-
-// show register
-app.get("/register", (req,res)=>{
-  res.render("register");
-});
-
-
-// handle register logic
-app.post("/register", (req,res) => {
-
-  let newUser = new User({username: req.body.username});
-
-  User.register(newUser, req.body.password, (err, user) => {
-    if (err) {
-      console.log(err);
-      res.render("register");
-    }
-      passport.authenticate("local")(req, res, function() {
-        res.redirect("/campgrounds");
-      });
-    });
-});
-
-// show login form
-app.get("/login", (req,res)=>{
-  res.render("login");
-});
-
-// handle login logic
-app.post("/login", passport.authenticate("local",
-        {
-          successRedirect:"/campgrounds",
-          failureRedirect:"/login"
-        }), (req,res) =>
-{});
-
-// logout
-app.get("/logout", (req,res) => {
-  req.logout();
-  res.redirect("/campgrounds");
-});
-
-
-function isLoggedIn(req,res,next){
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
-}
-
+app.use(indexRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/comments",commentRoutes);
 
 app.listen(port, ()=> {
   //console.log('The value of PORT is:', process.env.PORT);
