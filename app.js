@@ -8,6 +8,7 @@ const express = require('express'),
       Comment = require('./models/comment'),
       passport = require('passport'),
       LocalStrategy = require('passport-local'),
+      methodOverride = require('method-override'),
       User = require('./models/user');
 
 // REQUIRE ROUTES
@@ -18,6 +19,7 @@ const commentRoutes = require('./routes/comments'),
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname + "/public"));
 app.set("view engine", "ejs");
+app.use(methodOverride("_method"));
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true});
 
 // seedDB(); // seed the database
