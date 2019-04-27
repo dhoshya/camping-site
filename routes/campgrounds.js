@@ -16,15 +16,20 @@ router.get("/", (req,res) => {
 });
 
 // CREATE - create new campground
-router.post("/", (req,res) => {
+router.post("/",isLoggedIn,(req,res) => {
 
     let name = req.body.name;
     let imageUrl = req.body.image;
-    let desc = req.body.description
+    let desc = req.body.description;
+    let author = {
+      id: req.user._id,
+      username: req.user.username
+    }
     let newCampground = {
       name: name,
       image: imageUrl,
-      description: desc
+      description: desc,
+      author: author
     }
     //campgrounds.push(newCampground);
     Campground.create(newCampground, function(err, newlyCreated){
@@ -37,7 +42,7 @@ router.post("/", (req,res) => {
 });
 
 // NEW - Show form to create new campground
-router.get("/new", (req,res)=>{
+router.get("/new", isLoggedIn,(req,res)=>{
   res.render("campgrounds/new");
 });
 
