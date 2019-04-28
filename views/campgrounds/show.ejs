@@ -17,7 +17,7 @@
       <div class="card">
         <img src="<%= campground.image%>" class="img-responsive">
         <div class="caption">
-          <h4 class="pull-right">$9.00/ Night</h4>
+          <h4 class="float-right">$9.00/ Night</h4>
           <h4>
             <a class="" href="#"><p><%= campground.name %></p></a>
           </h4>
@@ -29,8 +29,8 @@
           </p>
           <% if(currentUser && campground.author.id.equals(currentUser._id)) { %>
             <a class="btn btn-warning" href="/campgrounds/<%= campground._id%>/edit">Edit</a>
-            <form id="delete-form" class="" action="/campgrounds/<%= campground._id%>?_method=DELETE" method="POST">
-              <button type="delete" name="button" class="btn btn-danger">Delete</button>
+            <form class="delete-form" action="/campgrounds/<%= campground._id%>?_method=DELETE" method="POST">
+              <button type="submit" name="button" class="btn btn-danger">Delete</button>
             </form>
         <%  } %>
         </div>
@@ -47,10 +47,20 @@
           <div class="row">
             <div class="col-md-12">
               <strong><%= comment.author.username%></strong>
-              <span class="pull-right">10 days ago</span>
+              <span class="float-right">10 days ago</span>
               <p>
                 <%= comment.text%>
                </p>
+               <a class="btn btn-xs btn-warning"
+                href="/campgrounds/<%= campground._id%>/comments/<%=comment._id%>/edit">
+                Edit
+               </a>
+               <form class="delete-form" method="POST"
+                action="/campgrounds/<%= campground._id%>/comments/<%=comment._id%>/?_method=DELETE">
+                 <button type="submit" name="button" class="btn btn-xs btn-danger">
+                   Delete
+                 </button>
+               </form>
             </div>
           </div>
         <% }) %>
