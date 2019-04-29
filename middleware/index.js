@@ -1,9 +1,9 @@
 const Campground = require('../models/campgrounds');
 const Comment = require('../models/comment');
 
-const middleareObj = {};
+const middlewareObj = {};
 
-middleareObj.checkCampgroundOwnership = function(req,res,next){
+middlewareObj.checkCampgroundOwnership = function(req,res,next){
     if (req.isAuthenticated()) {
         Campground.findById(req.params.id, (err, foundCampground)=> {
           if (err) {
@@ -21,7 +21,7 @@ middleareObj.checkCampgroundOwnership = function(req,res,next){
   }
 }
 
-middleareObj.checkCommentOwnership = function (req, res,next) {
+middlewareObj.checkCommentOwnership = function (req, res,next) {
   if (isAuthenticated()) {
     Comment.findById(req.params.comment_id, (err, foundComment) => {
       if (err) {
@@ -39,11 +39,11 @@ middleareObj.checkCommentOwnership = function (req, res,next) {
   }
 }
 
-middleareObj.isLoggedIn = function (req,res,next) {
+middlewareObj.isLoggedIn = function (req,res,next) {
   if (req.isAuthenticated()) {
     return next();
   }
   res.redirect("/login");
 }
 
-module.export =  middleareObj;
+module.exports =  middlewareObj;

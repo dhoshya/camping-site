@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router({mergeParams: true});
 const Campground = require('../models/campgrounds');
 const Comment = require('../models/comment');
-const middleareObj = require('../middleware');
+const middlewareObj = require('../middleware');
 
 // COMMENTS NEW
-router.get("/new", middleareObj.isLoggedIn, (req,res) => {
+router.get("/new", middlewareObj.isLoggedIn, function(req,res){
   Campground.findById(req.params.id, (err, foundCampground) => {
     if (err) {
       console.log(err);
@@ -16,7 +16,7 @@ router.get("/new", middleareObj.isLoggedIn, (req,res) => {
 });
 
 // COMMENTS CREATE
-router.post("/", middleareObj.isLoggedIn, (req,res) => {
+router.post("/", middlewareObj.isLoggedIn, (req,res) => {
   Campground.findById(req.params.id, (err, campground) => {
     if (err) {
       console.log(err);
@@ -39,7 +39,7 @@ router.post("/", middleareObj.isLoggedIn, (req,res) => {
 });
 
 // EDIT COMMENTS
-router.get("/:comment_id/edit", middleareObj.checkCommentOwnership,(req,res) => {
+router.get("/:comment_id/edit", middlewareObj.checkCommentOwnership,(req,res) => {
   Comment.findById(req.params.comment_id, (err, foundComment) => {
     if (err) {
       console.log(req.params.comment_id);
@@ -55,7 +55,7 @@ router.get("/:comment_id/edit", middleareObj.checkCommentOwnership,(req,res) => 
 });
 
 // UPDATE COMMENT
-router.put("/:comment_id", middleareObj.checkCommentOwnership,(req,res) => {
+router.put("/:comment_id", middlewareObj.checkCommentOwnership,(req,res) => {
   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment,
                   (err, updatedComment) => {
                     if (err) {
@@ -68,7 +68,7 @@ router.put("/:comment_id", middleareObj.checkCommentOwnership,(req,res) => {
 });
 
 // DELETE COMMENT
-router.delete("/:comment_id", middleareObj.checkCommentOwnership,(req,res) => {
+router.delete("/:comment_id", middlewareObj.checkCommentOwnership,(req,res) => {
   Comment.findByIdAndRemove(req.params.comment_id, (err) => {
     if (err) {
       res.redirect("back");
