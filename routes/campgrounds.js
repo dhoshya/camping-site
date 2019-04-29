@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Campground = require('../models/campgrounds');
 const Comment = require('../models/comment');
+const middlewareObj = require('../middleware');
+
 
 // INDEX - show all campgrounds
 router.get("/", (req,res) => {
@@ -16,7 +18,7 @@ router.get("/", (req,res) => {
 });
 
 // CREATE - create new campground
-router.post("/",isLoggedIn,(req,res) => {
+router.post("/",middlewareObj.isLoggedIn,(req,res) => {
 
     let name = req.body.name;
     let imageUrl = req.body.image;
@@ -42,7 +44,7 @@ router.post("/",isLoggedIn,(req,res) => {
 });
 
 // NEW - Show form to create new campground
-router.get("/new", isLoggedIn,(req,res)=>{
+router.get("/new", middlewareObj.isLoggedIn,(req,res)=>{
   res.render("campgrounds/new");
 });
 
@@ -59,7 +61,7 @@ router.get("/:id", (req,res) => {
 });
 
 // EDIT CAMPGROUND
-router.get("/:id/edit", checkCampgroundOwnership,(req,res) => {
+router.get("/:id/edit", middlewareObj.checkCampgroundOwnership,(req,res) => {
   Campground.findById(req.params.id, (err, foundCampground)=> {
     res.render("campgrounds/edit",{campground: foundCampground});
   });
@@ -79,7 +81,7 @@ router.put("/:id", (req,res) => {
 });
 
 // DESTROY ROUTE
-router.delete("/:id",checkCampgroundOwnership, (req,res) => {
+router.delete("/:id",middlewareObj.checkCampgroundOwnership, (req,res) => {
   Campground.findByIdAndRemove(req.params.id, (err) => {
     if (err) {
       res.redirect("/campgrounds");
@@ -88,33 +90,5 @@ router.delete("/:id",checkCampgroundOwnership, (req,res) => {
     }
   })
 });
-
-// MIDDLEWARE
-function isLoggedIn(req,res,next){
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
-}
-
-// MIDDLEWARE
-function checkCampgroundOwnership(req, res, next){
-  if (req.isAuthenticated()) {
-      Campground.findById(req.params.id, (err, foundCampground)=> {
-        if (err) {
-          res.redirect("back");
-        } else {
-          if (foundCampground.author.id.equals(req.user._id)) {
-            next();
-          } else {
-            res.redirect("back");
-          }
-        }
-      });
-    } else {
-    res.redirect("back");
-  }
-}
-
 
 module.exports = router;

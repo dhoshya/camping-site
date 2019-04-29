@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router({mergeParams: true});
 const Campground = require('../models/campgrounds');
 const Comment = require('../models/comment');
+const middleareObj = require('../middleware');
 
 // COMMENTS NEW
-router.get("/new", isLoggedIn, (req,res) => {
+router.get("/new", middleareObj.isLoggedIn, (req,res) => {
   Campground.findById(req.params.id, (err, foundCampground) => {
     if (err) {
       console.log(err);
@@ -15,7 +16,7 @@ router.get("/new", isLoggedIn, (req,res) => {
 });
 
 // COMMENTS CREATE
-router.post("/", isLoggedIn, (req,res) => {
+router.post("/", middleareObj.isLoggedIn, (req,res) => {
   Campground.findById(req.params.id, (err, campground) => {
     if (err) {
       console.log(err);
@@ -38,7 +39,7 @@ router.post("/", isLoggedIn, (req,res) => {
 });
 
 // EDIT COMMENTS
-router.get("/:comment_id/edit", (req,res) => {
+router.get("/:comment_id/edit", middleareObj.checkCommentOwnership,(req,res) => {
   Comment.findById(req.params.comment_id, (err, foundComment) => {
     if (err) {
       console.log(req.params.comment_id);
@@ -54,7 +55,7 @@ router.get("/:comment_id/edit", (req,res) => {
 });
 
 // UPDATE COMMENT
-router.put("/:comment_id", (req,res) => {
+router.put("/:comment_id", middleareObj.checkCommentOwnership,(req,res) => {
   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment,
                   (err, updatedComment) => {
                     if (err) {
@@ -67,7 +68,7 @@ router.put("/:comment_id", (req,res) => {
 });
 
 // DELETE COMMENT
-router.delete("/:comment_id", (req,res) => {
+router.delete("/:comment_id", middleareObj.checkCommentOwnership,(req,res) => {
   Comment.findByIdAndRemove(req.params.comment_id, (err) => {
     if (err) {
       res.redirect("back");
@@ -76,14 +77,5 @@ router.delete("/:comment_id", (req,res) => {
     }
   });
 });
-
-// MIDDLEWARE
-function isLoggedIn(req,res,next){
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
-}
-
 
 module.exports = router;
