@@ -23,6 +23,7 @@ router.post("/",middlewareObj.isLoggedIn,(req,res) => {
     let name = req.body.name;
     let imageUrl = req.body.image;
     let desc = req.body.description;
+    let price = req.body.price;
     var author = {
       id: req.user._id,
       username: req.user.username
@@ -31,6 +32,7 @@ router.post("/",middlewareObj.isLoggedIn,(req,res) => {
       name: name,
       image: imageUrl,
       description: desc,
+      price: price,
       author: author
     }
     //campgrounds.push(newCampground);
