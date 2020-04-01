@@ -17,7 +17,7 @@
     "express-session": "^1.16.1",
     "method-override": "^3.0.0",
     "mongodb": "^3.2.3",
-    "mongoose": "^5.5.0",
+    "mongoose": "^5.7.5",
     "node-geocoder": "^3.22.0",
     "nodemon": "^2.0.2",
     "npm-upgrade": "^2.0.3",
